@@ -36,6 +36,7 @@ https://rhodesmill.org/skyfield/installation.html
 https://exoplanetarchive.ipac.caltech.edu/docs/transit_algorithms.html#ephemeris
 https://www.npmjs.com/package/astronomy
 https://www.npmjs.com/package/ephemeris
+https://sites.tufts.edu/eeseniordesignhandbook/files/2019/05/Krinsky-Tech-Note.pdf 
 
 # Example TLE Data for testing
 

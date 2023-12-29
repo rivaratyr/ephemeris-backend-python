@@ -46,24 +46,40 @@ def get_ephemeris():
 
     logging.info(f"Received data: {data}")
 
-    observation_date = '2024-01-01'
+    try:
+        # Defining the observer (from Earth)
+        observer = ephem.Observer()
+        observer.lon = data["data"]["observer"]["longitude"]
+        observer.lat = data["data"]["observer"]["latitude"]
+        observer.elevation = int(data["data"]["observer"]["elevation"])
+        observer.date = data["data"]["observer"]["time"]
 
-    #try:
-    #    observation_date = datetime.strptime(data.observer.time, "%Y-%m-%d")
-    #except ValueError:
-    #    return jsonify({'error': 'Érvénytelen dátum formátum'}), 400
+        # Defining the bidy to be observed by TLE data
+        line1 = data["data"]["body"]["tle1"]
+        line2 = data["data"]["body"]["tle2"]
+        line3 = data["data"]["body"]["tle3"]
+        body = ephem.readtle(line1, line2, line3)
+        body.compute(observer)
+        print('%s %s' % (body.sublong, body.sublat))
 
-    # Mars pozíciójának kiszámítása a megadott dátumon
-    mars = ephem.Mars(observation_date)
-    mars.compute(observation_date)
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
     # Az adatok visszaadása
     return jsonify({
-        'date': observation_date,
-        'mars': {
-            'right_ascension': str(mars.ra),
-            'declination': str(mars.dec),
-            'distance_from_sun': mars.sun_distance
+        'date': observer.date,
+        'body': {
+            'right_ascension': str(body.ra),
+            'declination': str(body.dec),
+            'azimuth': body.az,
+            'altitude': body.alt,
+            'distance_from_observer': body.range,
+            'subpoint_longitude': body.sublong,
+            'subpoint_latitude': body.sublat,
+            'subpoint_elevation': body.elevation
         }
     }), 200
 
